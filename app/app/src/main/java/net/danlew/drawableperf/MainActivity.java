@@ -13,9 +13,11 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import com.telly.mrvector.MrVector;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +53,22 @@ public class MainActivity extends ActionBarActivity {
         R.drawable.ic_alarm_off_24px_mr,
         R.drawable.ic_alarm_on_24px_mr
     );
+
+    private static final List<Integer> PNG_DRAWABLES = Arrays.asList(
+        R.drawable.ic_3d_rotation_black_24dp,
+        R.drawable.ic_accessibility_black_24dp,
+        R.drawable.ic_account_balance_black_24dp,
+        R.drawable.ic_account_balance_wallet_black_24dp,
+        R.drawable.ic_account_box_black_24dp,
+        R.drawable.ic_account_child_black_24dp,
+        R.drawable.ic_account_circle_black_24dp,
+        R.drawable.ic_add_shopping_cart_black_24dp,
+        R.drawable.ic_alarm_black_24dp,
+        R.drawable.ic_alarm_add_black_24dp,
+        R.drawable.ic_alarm_off_black_24dp,
+        R.drawable.ic_alarm_on_black_24dp
+    );
+
 
     @InjectView(R.id.size_edit_text)
     EditText mSizeEditText;
@@ -105,12 +123,23 @@ public class MainActivity extends ActionBarActivity {
 
     @OnClick(R.id.bitmap_drawable_test)
     public void testBitmap() {
-        // TODO
+        Observable<Drawable> drawableObservable =
+            Observable.from(PNG_DRAWABLES)
+                .map(new Func1<Integer, Drawable>() {
+                    @Override
+                    public Drawable call(Integer resId) {
+                        return getResources().getDrawable(resId);
+                    }
+                });
+
+        testDrawables(drawableObservable);
     }
 
     private void testDrawables(Observable<Drawable> drawables) {
         int size = Integer.parseInt(mSizeEditText.getText().toString());
         int iterations = Integer.parseInt(mIterationsEditText.getText().toString());
+
+        mResultsTextView.setText("Running test...");
 
         drawables.reduce(new DrawableInstrumentation(iterations, size, size),
             new Func2<DrawableInstrumentation, Drawable, DrawableInstrumentation>() {
@@ -122,6 +151,8 @@ public class MainActivity extends ActionBarActivity {
                     return drawableInstrumentation;
                 }
             })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(new Action1<DrawableInstrumentation>() {
                            @Override
                            public void call(DrawableInstrumentation drawableInstrumentation) {
