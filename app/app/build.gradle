@@ -23,4 +23,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'io.reactivex:rxjava:1.0.8'
     compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.telly:mrvector:0.2.0'
 }

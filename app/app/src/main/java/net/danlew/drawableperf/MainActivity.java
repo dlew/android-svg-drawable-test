@@ -11,6 +11,7 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import com.telly.mrvector.MrVector;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -34,6 +35,21 @@ public class MainActivity extends ActionBarActivity {
         R.drawable.ic_alarm_add_24px_vector,
         R.drawable.ic_alarm_off_24px_vector,
         R.drawable.ic_alarm_on_24px_vector
+    );
+
+    private static final List<Integer> MR_VECTOR_DRAWABLES = Arrays.asList(
+        R.drawable.ic_3d_rotation_24px_mr,
+        R.drawable.ic_accessibility_24px_mr,
+        R.drawable.ic_account_balance_24px_mr,
+        R.drawable.ic_account_balance_wallet_24px_mr,
+        R.drawable.ic_account_box_24px_mr,
+        R.drawable.ic_account_child_24px_mr,
+        R.drawable.ic_account_circle_24px_mr,
+        R.drawable.ic_add_shopping_cart_24px_mr,
+        R.drawable.ic_alarm_24px_mr,
+        R.drawable.ic_alarm_add_24px_mr,
+        R.drawable.ic_alarm_off_24px_mr,
+        R.drawable.ic_alarm_on_24px_mr
     );
 
     @InjectView(R.id.size_edit_text)
@@ -75,7 +91,16 @@ public class MainActivity extends ActionBarActivity {
 
     @OnClick(R.id.mr_vector_test)
     public void testMrVector() {
-        // TODO
+        Observable<Drawable> drawableObservable =
+            Observable.from(MR_VECTOR_DRAWABLES)
+                .map(new Func1<Integer, Drawable>() {
+                    @Override
+                    public Drawable call(Integer resId) {
+                        return MrVector.inflate(getResources(), resId);
+                    }
+                });
+
+        testDrawables(drawableObservable);
     }
 
     @OnClick(R.id.bitmap_drawable_test)
@@ -90,27 +115,29 @@ public class MainActivity extends ActionBarActivity {
         drawables.reduce(new DrawableInstrumentation(iterations, size, size),
             new Func2<DrawableInstrumentation, Drawable, DrawableInstrumentation>() {
                 @Override
-                public DrawableInstrumentation call(DrawableInstrumentation drawableInstrumentation,
-                                                    Drawable drawable) {
+                public DrawableInstrumentation call(
+                    DrawableInstrumentation drawableInstrumentation,
+                    Drawable drawable) {
                     drawableInstrumentation.testDrawable(drawable);
                     return drawableInstrumentation;
                 }
             })
             .subscribe(new Action1<DrawableInstrumentation>() {
-                @Override
-                public void call(DrawableInstrumentation drawableInstrumentation) {
-                    long avg = drawableInstrumentation.getAverageNanosecondsPerRender();
-                    String result = "Average render time per drawable: " + avg + " ns";
-                    result += "\n\nThis works out to " + (avg / 100000) + " ms per 10 drawables rendered";
-                    result += "\n\nOr... " + (avg / 10000) + " ms per 100 drawables rendered";
-                    mResultsTextView.setText(result);
-                }
-            },
-            new Action1<Throwable>() {
-                @Override
-                public void call(Throwable throwable) {
-                    Log.e("DrawablePerf", "Something went wrong during testing", throwable);
-                }
-            });
+                           @Override
+                           public void call(DrawableInstrumentation drawableInstrumentation) {
+                               long avg = drawableInstrumentation.getAverageNanosecondsPerRender();
+                               String result = "Average render time per drawable: " + avg + " ns";
+                               result += "\n\nThis works out to " + (avg / 100000) + " ms per 10 drawables rendered";
+                               result += "\n\nOr... " + (avg / 10000) + " ms per 100 drawables rendered";
+                               mResultsTextView.setText(result);
+                           }
+                       },
+                new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        mResultsTextView.setText("Something went wrong during testing, check the logs.");
+                        Log.e("DrawablePerf", "Something went wrong during testing", throwable);
+                    }
+                });
     }
 }
