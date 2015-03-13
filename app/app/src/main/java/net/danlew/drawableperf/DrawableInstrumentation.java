@@ -3,6 +3,7 @@ package net.danlew.drawableperf;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import rx.functions.Func0;
 
 /**
  * Tests how long it takes drawables to render.
@@ -23,11 +24,11 @@ public class DrawableInstrumentation {
         mCanvas = new Canvas(bitmap);
     }
 
-    public void testDrawable(Drawable drawable) {
-        drawable.setBounds(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
-
+    public void testDrawable(Func0<Drawable> drawableGenerator) {
         long start = System.nanoTime();
         for (int a = 0; a < mNumTestsPerDrawable; a++) {
+            Drawable drawable = drawableGenerator.call();
+            drawable.setBounds(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
             drawable.draw(mCanvas);
         }
         long end = System.nanoTime();

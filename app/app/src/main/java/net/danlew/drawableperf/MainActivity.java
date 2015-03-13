@@ -15,6 +15,7 @@ import com.telly.mrvector.MrVector;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func0;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
@@ -69,7 +70,6 @@ public class MainActivity extends ActionBarActivity {
         R.drawable.ic_alarm_on_black_24dp
     );
 
-
     @InjectView(R.id.size_edit_text)
     EditText mSizeEditText;
 
@@ -95,12 +95,17 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        Observable<Drawable> drawableObservable =
+        Observable<Func0<Drawable>> drawableObservable =
             Observable.from(VECTOR_DRAWABLES)
-                .map(new Func1<Integer, Drawable>() {
+                .map(new Func1<Integer, Func0<Drawable>>() {
                     @Override
-                    public Drawable call(Integer resId) {
-                        return getResources().getDrawable(resId);
+                    public Func0<Drawable> call(final Integer resId) {
+                        return new Func0<Drawable>() {
+                            @Override
+                            public Drawable call() {
+                                return getResources().getDrawable(resId).mutate();
+                            }
+                        };
                     }
                 });
 
@@ -109,12 +114,17 @@ public class MainActivity extends ActionBarActivity {
 
     @OnClick(R.id.mr_vector_test)
     public void testMrVector() {
-        Observable<Drawable> drawableObservable =
+        Observable<Func0<Drawable>> drawableObservable =
             Observable.from(MR_VECTOR_DRAWABLES)
-                .map(new Func1<Integer, Drawable>() {
+                .map(new Func1<Integer, Func0<Drawable>>() {
                     @Override
-                    public Drawable call(Integer resId) {
-                        return MrVector.inflate(getResources(), resId);
+                    public Func0<Drawable> call(final Integer resId) {
+                        return new Func0<Drawable>() {
+                            @Override
+                            public Drawable call() {
+                                return MrVector.inflate(getResources(), resId).mutate();
+                            }
+                        };
                     }
                 });
 
@@ -123,31 +133,36 @@ public class MainActivity extends ActionBarActivity {
 
     @OnClick(R.id.bitmap_drawable_test)
     public void testBitmap() {
-        Observable<Drawable> drawableObservable =
+        Observable<Func0<Drawable>> drawableObservable =
             Observable.from(PNG_DRAWABLES)
-                .map(new Func1<Integer, Drawable>() {
+                .map(new Func1<Integer, Func0<Drawable>>() {
                     @Override
-                    public Drawable call(Integer resId) {
-                        return getResources().getDrawable(resId);
+                    public Func0<Drawable> call(final Integer resId) {
+                        return new Func0<Drawable>() {
+                            @Override
+                            public Drawable call() {
+                                return getResources().getDrawable(resId).mutate();
+                            }
+                        };
                     }
                 });
 
         testDrawables(drawableObservable);
     }
 
-    private void testDrawables(Observable<Drawable> drawables) {
+    // We use a Func0 generator to ensure each tested Drawable is fresh.
+    private void testDrawables(Observable<Func0<Drawable>> drawables) {
         int size = Integer.parseInt(mSizeEditText.getText().toString());
         int iterations = Integer.parseInt(mIterationsEditText.getText().toString());
 
         mResultsTextView.setText("Running test...");
 
         drawables.reduce(new DrawableInstrumentation(iterations, size, size),
-            new Func2<DrawableInstrumentation, Drawable, DrawableInstrumentation>() {
+            new Func2<DrawableInstrumentation, Func0<Drawable>, DrawableInstrumentation>() {
                 @Override
                 public DrawableInstrumentation call(
-                    DrawableInstrumentation drawableInstrumentation,
-                    Drawable drawable) {
-                    drawableInstrumentation.testDrawable(drawable);
+                    DrawableInstrumentation drawableInstrumentation, Func0<Drawable> drawableGenerator) {
+                    drawableInstrumentation.testDrawable(drawableGenerator);
                     return drawableInstrumentation;
                 }
             })
