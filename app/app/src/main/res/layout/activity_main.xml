@@ -55,6 +55,12 @@
 
         </LinearLayout>
 
+        <CheckBox
+            android:id="@+id/reuse_drawables_checkbox"
+            android:text="Reuse Drawable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <Button
             android:id="@+id/vector_drawable_test"
             android:layout_width="match_parent"

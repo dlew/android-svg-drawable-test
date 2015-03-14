@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +76,9 @@ public class MainActivity extends ActionBarActivity {
 
     @InjectView(R.id.iterations_edit_text)
     EditText mIterationsEditText;
+
+    @InjectView(R.id.reuse_drawables_checkbox)
+    CheckBox mReuseDrawablesCheckbox;
 
     @InjectView(R.id.results)
     TextView mResultsTextView;
@@ -154,10 +158,11 @@ public class MainActivity extends ActionBarActivity {
     private void testDrawables(Observable<Func0<Drawable>> drawables) {
         int size = Integer.parseInt(mSizeEditText.getText().toString());
         int iterations = Integer.parseInt(mIterationsEditText.getText().toString());
+        boolean reuseDrawables = mReuseDrawablesCheckbox.isChecked();
 
         mResultsTextView.setText("Running test...");
 
-        drawables.reduce(new DrawableInstrumentation(iterations, size, size),
+        drawables.reduce(new DrawableInstrumentation(iterations, size, reuseDrawables),
             new Func2<DrawableInstrumentation, Func0<Drawable>, DrawableInstrumentation>() {
                 @Override
                 public DrawableInstrumentation call(

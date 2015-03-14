@@ -14,21 +14,35 @@ public class DrawableInstrumentation {
 
     private final Canvas mCanvas;
 
+    private final boolean mReuseDrawables;
+
     private long mTotalTime = 0;
     private int mNumRenders = 0;
 
-    public DrawableInstrumentation(int numTestsPerDrawable, int width, int height) {
+    public DrawableInstrumentation(int numTestsPerDrawable, int size, boolean reuseDrawables) {
         mNumTestsPerDrawable = numTestsPerDrawable;
 
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(bitmap);
+
+        mReuseDrawables = reuseDrawables;
     }
 
     public void testDrawable(Func0<Drawable> drawableGenerator) {
+        Drawable drawable = null;
+
+        if (mReuseDrawables) {
+            drawable = drawableGenerator.call();
+            drawable.setBounds(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
+        }
+
         long start = System.nanoTime();
         for (int a = 0; a < mNumTestsPerDrawable; a++) {
-            Drawable drawable = drawableGenerator.call();
-            drawable.setBounds(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
+            if (!mReuseDrawables) {
+                drawable = drawableGenerator.call();
+                drawable.setBounds(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
+            }
+
             drawable.draw(mCanvas);
         }
         long end = System.nanoTime();
