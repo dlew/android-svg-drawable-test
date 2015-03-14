@@ -1,5 +1,6 @@
 package net.danlew.drawableperf;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -146,6 +147,26 @@ public class MainActivity extends ActionBarActivity {
                             @Override
                             public Drawable call() {
                                 return getResources().getDrawable(resId).mutate();
+                            }
+                        };
+                    }
+                });
+
+        testDrawables(drawableObservable);
+    }
+
+    @OnClick(R.id.fast_bitmap_drawable_test)
+    public void testFastBitmap() {
+        Observable<Func0<Drawable>> drawableObservable =
+            Observable.from(PNG_DRAWABLES)
+                .map(new Func1<Integer, Func0<Drawable>>() {
+                    @Override
+                    public Func0<Drawable> call(final Integer resId) {
+                        return new Func0<Drawable>() {
+                            @Override
+                            public Drawable call() {
+                                BitmapDrawable original = (BitmapDrawable) getResources().getDrawable(resId);
+                                return new FastBitmapDrawable(getResources(), original).mutate();
                             }
                         };
                     }

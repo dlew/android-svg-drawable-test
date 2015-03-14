@@ -82,6 +82,13 @@
             android:text="Test Bitmaps"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/fast_bitmap_drawable_test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test (Fast) Bitmaps"
+            android:textAllCaps="false" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
